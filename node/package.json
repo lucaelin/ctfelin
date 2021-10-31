@@ -4,7 +4,7 @@
   "description": "",
   "main": "./src/index.js",
   "scripts": {
-    "start": "npm run waitdb && bash -c 'if [[ \"$NODE_ENV\" == \"development\" ]]; then npm run autoreload; else npm run prod; fi'",
+    "start": "npm i && npm run waitdb && bash -c 'if [[ \"$NODE_ENV\" == \"development\" ]]; then npm run autoreload; else npm run prod; fi'",
     "waitdb": "wait-on tcp:db:3306",
     "autoreload": "nodemon ./src/index.js",
     "prod": "node --unhandled-rejections=strict ./src/index.js",
