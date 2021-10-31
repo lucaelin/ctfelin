@@ -1,0 +1,62 @@
+version: '3.8'
+
+services:
+  node:
+    build:
+      context: ./node
+      args:
+        NODE_FLAG: $NODE_FLAG
+    restart: unless-stopped
+    volumes:
+      - ./node:/app
+      - ./media:/app/media
+    env_file:
+      - ./env/common.env
+      - ./env/node.env
+      - ./env/mariadb.env
+    environment:
+      - NODE_ENV=development
+
+  web:
+    image: nginx
+    restart: unless-stopped
+    volumes:
+      - ./media:/var/www/html/media
+      - ./web/html:/var/www/html
+      - ./web/templates:/etc/nginx/templates
+    ports:
+      - "8080:80"
+    env_file:
+      - ./env/common.env
+      - ./env/nginx.env
+
+  db:
+    image: mariadb
+    restart: unless-stopped
+    volumes:
+      - ./db:/docker-entrypoint-initdb.d
+    ports:
+      - "3306:3306"
+    env_file:
+      - ./env/common.env
+      - ./env/mariadb.env
+
+  puppeteer:
+    build: ./puppeteer
+    restart: unless-stopped
+    command: "wait-for-it.sh web:80 -- node index.js"
+    env_file:
+      - ./env/common.env
+      - ./env/puppeteer.env
+
+  python:
+    build:
+      context: ./python
+      args:
+        PYTHON_FLAG: $PYTHON_FLAG
+    restart: unless-stopped
+    volumes:
+      - ./python:/app
+    env_file:
+      - ./env/common.env
+      - ./env/python.env
